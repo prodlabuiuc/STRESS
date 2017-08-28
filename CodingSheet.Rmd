@@ -1,0 +1,45 @@
+```{r}
+in_path<- paste(getwd(), "/lists", sep = "")
+list.files(path = in_path, pattern = "*.txt")
+
+constraints<- c('DK1','FSH1','KD1','MN1','NM1','SHF1','DK2','FSH2','KD2','MN2','NM2','SHF2','DK3','FSH3','KD3','MN3','NM3','SHF3')
+subjns<- sprintf("%02s",c(1:18))
+subjn_to_constraints<- data.frame(subjns, constraints) %>% 
+  mutate(constraints=as.character(constraints))
+write.csv(x = subjn_to_constraints, file = "subjn_to_constraints.csv", row.names = F )
+
+prefix<- "str"
+for (n in c(1:18)){
+  for (day in c(1,2)){
+    constraint<- constraints[n]
+    subjn<- subjns[n]
+    filename<-paste(getwd(),"/lists/",constraint,"day",day,".txt", sep = "")
+    txt_file<-read_lines(filename)
+    target_seq<-c()
+    trial_num<- c()
+    count=1
+    for (line in txt_file){
+      target_seq<- c(target_seq, rep(line, 3))
+      trial_num<- c(trial_num, rep(count, 3))
+      count<- count+1
+    }
+    rep_num<-rep(1:3, 96)
+    codingsheet<-data.frame(matrix(nrow = 96*3, ncol = 11))
+    colnames(codingsheet)<- c("trial_num", "target_seq", "rep_num", "s1onset", "s1coda", "s2onset", "s2coda", "s3onset", "s3coda", "s4onset", "s4coda")
+    codingsheet[,1]<- as.character(sprintf("%02s",trial_num))
+    codingsheet[,2]<- target_seq
+    codingsheet[,3]<- rep_num
+    codingsheet<- codingsheet %>%
+      mutate(s1onset="",
+             s1coda="",
+             s2onset="",
+             s2coda="",
+             s3onset="",
+             s3coda="",
+             s4onset="",
+             s4coda="")
+    write.csv(codingsheet, file = paste(getwd(),"/orig_sheets/","strs", subjn, "d",day,".csv",sep = ""), row.names = F)
+  }
+}
+```
+
